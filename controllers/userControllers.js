@@ -79,13 +79,3 @@ exports.getProfiles = async (req, res) => {
     });
 }
 
-
-exports.sendMail = async (req,res)=>{
-
-    await sendOtpMail("codeslearner07@gmail.com","0011");
-    
-    res.json({
-        message:"Mail Sent !"
-    })
-
-}
