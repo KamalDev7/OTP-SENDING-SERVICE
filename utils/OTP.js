@@ -1,57 +1,32 @@
-// const nodemailer = require('nodemailer');
-
-// function sendOtp(mail, OTP) {
-//     // Create transporter using Gmail
-//     const transporter = nodemailer.createTransport({
-//         service: 'gmail',
-//         auth: {
-//             user: process.env.MAIL_USER,      // your email
-//             pass: process.env.MAIL_PASS // app password
-//         }
-//     });
-
-//     // Mail options
-//     const mailOptions = {
-//         from: process.env.MAIL_USER,
-//         to: mail,
-//         subject: 'Your OTP',
-//         text: `Hello! your One Time Password is :  ${OTP} `
-//     };
-
-//     // Send email
-//     transporter.sendMail(mailOptions, (error, info) => {
-//         if (error) {
-//             console.log('Error:', error);
-//         } else {
-//             console.log('Email sent:', info.response);
-//         }
-//     });
-
-// }
-
-// module.exports = sendOtp;
-
-
-
-const nodemailer = require("nodemailer");
+const nodemailer = require('nodemailer');
 
 function sendOtp(mail, OTP) {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS
-    }
-  });
+    // Create transporter using Gmail
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.MAIL_USER,      // your email
+            pass: process.env.MAIL_PASS // app password
+        }
+    });
 
-  const mailOptions = {
-    from: process.env.MAIL_USER,
-    to: mail,
-    subject: "Your OTP",
-    text: `Hello! Your OTP is ${OTP}. It is valid for 5 minutes.`
-  };
+    // Mail options
+    const mailOptions = {
+        from: process.env.MAIL_USER,
+        to: mail,
+        subject: 'Your OTP',
+        text: `Hello! your One Time Password is :  ${OTP} `
+    };
 
-  return transporter.sendMail(mailOptions);
+    // Send email
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log('Error:', error);
+        } else {
+            console.log('Email sent:', info.response);
+        }
+    });
+
 }
 
 module.exports = sendOtp;
