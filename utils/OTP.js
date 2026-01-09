@@ -109,7 +109,7 @@ async function sendOtp(email, otp) {
           <!-- Logo -->
           <tr>
             <td style="padding-bottom:20px;">
-              <img src="https://www.seaneb.org/web/image/4300-63608a14/Frame%25202147227052.svg" alt="SeaNeB Autous" width="90" />
+              <img src="https://www.seaneb.org/web/image/4300-63608a14/Frame%25202147227052.svg" alt="SeaNeB Autous" width="90" style="background-color:white" />
             </td>
           </tr>
 
