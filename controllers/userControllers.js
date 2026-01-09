@@ -23,7 +23,7 @@ exports.sendOTP = async (req, res) => {
 
         await sendOtpMail(email, otp);
 
-        console.log("Send OTP invoked with mail and OTP");
+        console.log("------------------------Send OTP invoked with mail and OTP");
 
         res.json({ message: "OTP sent" });
     } catch (err) {
