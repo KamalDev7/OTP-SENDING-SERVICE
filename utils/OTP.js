@@ -107,11 +107,23 @@ async function sendOtp(email, otp) {
         <table width="500" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:10px;padding:30px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.08);">
 
           <!-- Logo -->
-          <tr>
-            <td style="padding-bottom:20px;">
-              <img src="https://www.seaneb.org/web/image/4300-63608a14/Frame%25202147227052.svg" alt="SeaNeB Autous" width="90" style="background-color:white" />
-            </td>
-          </tr>
+        <tr>
+            <td align="center" style="padding-bottom:20px;">
+                  <table cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;padding:10px;display:inline-block;">
+                            <tr>
+                                <td align="center">
+                                    <img
+                                          src="https://www.seaneb.org/web/image/4300-63608a14/Frame%25202147227052.svg"
+                                          alt="SeaNeB Autos"
+                                          width="90"
+                                          style="display:block;"
+                                    />
+                                </td>
+                              </tr>
+                    </table>
+              </td>
+        </tr>
+
 
           <!-- Title -->
           <tr>
