@@ -1,26 +1,26 @@
-const { Client } = require("pg");
+// const { Client } = require("pg");
 
-const con = new Client(
-    {
-        host: process.env.HOST_NAME,
-        user: process.env.DB_USER,
-        port: process.env.DB_PORT,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME
-    })
+// const con = new Client(
+//     {
+//         host: process.env.HOST_NAME,
+//         user: process.env.DB_USER,
+//         port: process.env.DB_PORT,
+//         password: process.env.DB_PASSWORD,
+//         database: process.env.DB_NAME
+//     })
 
-// const con = new Client({
-//     connectionString: process.env.DATABASE_URL,
-//     ssl: { rejectUnauthorized: false }
+// // const con = new Client({
+// //     connectionString: process.env.DATABASE_URL,
+// //     ssl: { rejectUnauthorized: false }
+// // });
+
+
+// con.connect().then(() => {
+//     console.log("DB Connected !");
 // });
 
 
-con.connect().then(() => {
-    console.log("DB Connected !");
-});
-
-
-module.exports = con;
+// module.exports = con;
 
 
 
@@ -39,3 +39,17 @@ module.exports = con;
 //     });
 
 // module.exports = con;
+
+
+
+const { Pool } = require("pg");
+
+const con = new Pool({
+  connectionString: process.env.DATABASE_URL
+});
+
+con.on("connect", () => {
+  console.log("Neon PostgreSQL connected");
+});
+
+module.exports = con;
