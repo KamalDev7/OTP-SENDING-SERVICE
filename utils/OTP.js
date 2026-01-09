@@ -38,8 +38,7 @@
 
 
 
-
-
+// 
 const SibApiV3Sdk = require("sib-api-v3-sdk");
 
 const client = SibApiV3Sdk.ApiClient.instance;
