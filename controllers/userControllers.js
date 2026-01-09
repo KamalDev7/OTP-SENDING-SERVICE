@@ -79,3 +79,29 @@ exports.getProfiles = async (req, res) => {
     });
 }
 
+
+exports.createUser = async (req, res) => {
+    try {
+        const {email,first_name} = req.body;
+
+        await con.query(
+            "INSERT INTO users(email, first_name) VALUES ($1,$2)",
+
+            [email, first_name]
+        );
+
+        console.log("User inserted...");
+
+        res.status(200).json({
+            message:"User created..."
+        })
+
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Server Error !"
+        })
+    }
+}
+
