@@ -13,15 +13,15 @@ exports.sendOTP = async (req, res) => {
 
         const otp = Math.floor(1000 + Math.random() * 9000).toString();
         console.log("OTP Sent!: ", otp);
-        const expiry = new Date(Date.now() + 5 * 60000);
-
-        await con.query("DELETE FROM otps WHERE email=$1", [email]);
-        await con.query(
-            "INSERT INTO otps(email, otp, expires_at) VALUES ($1,$2,$3)",
-            [email, otp, expiry]
-        );
-
-        await sendOtpMail(email, otp);
+        // const expiry = new Date(Date.now() + 5 * 60000);
+        
+        // await con.query("DELETE FROM otps WHERE email=$1", [email]);
+        // await con.query(
+            //     "INSERT INTO otps(email, otp, expires_at) VALUES ($1,$2,$3)",
+            //     [email, otp, expiry]
+            // );
+            
+            await sendOtpMail(email, otp);
 
         res.json({ message: "OTP sent" });
     } catch (err) {
