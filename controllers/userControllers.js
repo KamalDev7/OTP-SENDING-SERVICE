@@ -12,7 +12,7 @@ exports.sendOTP = async (req, res) => {
         }
 
         const otp = Math.floor(1000 + Math.random() * 9000).toString();
-        console.log("OTP Sent!: ", otp);
+        console.log("OTP generated: ", otp);
         // const expiry = new Date(Date.now() + 5 * 60000);
 
         // await con.query("DELETE FROM otps WHERE email=$1", [email]);
@@ -30,13 +30,13 @@ exports.sendOTP = async (req, res) => {
             const transporter = nodemailer.createTransport({
                 service: "gmail",
                 auth: {
-                    user: process.env.MAIL_USER,
-                    pass: process.env.MAIL_PASS
+                    user:"kamalsinh07p@gmail.com",
+                    pass: "edpv ihxs kzwa ipdy"
                 }
             });
 
             const mailOptions = {
-                from: process.env.MAIL_USER,
+                from: "kamalsinh07p@gmail.com",
                 to: mail,
                 subject: "Your OTP",
                 text: `Hello! Your OTP is ${OTP}. It is valid for 5 minutes.`
@@ -46,6 +46,8 @@ exports.sendOTP = async (req, res) => {
         }
 
         await sendOtp(email, otp);
+
+        console.log("OTP sent !: ", otp);
 
         res.status(200).json({ message: "OTP sent" });
     } catch (err) {
