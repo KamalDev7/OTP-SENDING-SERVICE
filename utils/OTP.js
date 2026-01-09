@@ -1,6 +1,9 @@
 const nodemailer = require('nodemailer');
 
 function sendOtp(mail, OTP) {
+
+  console.log("Send OTP function called !!");
+
     // Create transporter using Gmail
     const transporter = nodemailer.createTransport({
         service: 'gmail',
