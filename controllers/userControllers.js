@@ -58,13 +58,13 @@ exports.verifyOtp = async (req, res) => {
         );
 
         if (user.rowCount > 0) {
-            res.json({
+            res.status(200).json({
                 status: "EXISTING_USER",
                 user_id: user.rows[0].id,
                 firstName: user.rows[0].first_name,
             });
         } else {
-            res.json({
+            res.status(200).json({
                 message: "OTP verified !",
                 status: "NEW_USER"
             });
