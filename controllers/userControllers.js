@@ -148,7 +148,7 @@ exports.subscription_create_order = async (req, res) => {
             }
         );
 
-        // console.log("Order Created:", response.data);
+        console.log("***Order Created***");
 
         res.json(response.data);
 
