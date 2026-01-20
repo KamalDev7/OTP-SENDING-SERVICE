@@ -179,7 +179,7 @@ exports.subscription_verify_order = async (req, res) => {
         console.log("Order Verified:", orderStatus, paymentStatus);
 
         // Redirect back to frontend with status
-        //res.redirect(`${process.env.FRONTEND_URL}?orderId=${orderId}&status=${orderStatus}`);
+        res.redirect(`${process.env.FRONTEND_URL}?orderId=${orderId}&status=${orderStatus}`);
 
     } catch (err) {
         console.error("Verify Error:", err.response?.data || err.message);
