@@ -1,9 +1,13 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const cookieParser = require("cookie-parser");
+// const cookieParser = require("cookie-parser");
 
+const path = require("path");
 require("dotenv").config();
+
+
+
 const authRoutes = require("./routers/userRoutes");
 
 // app.use(cors({
@@ -17,8 +21,14 @@ app.use(cors({
 }));
 
 
+app.set("view engine","ejs");
+app.set("views",path.resolve("./views"));
+
 app.use(express.json());
 
+app.get("/",(req,res)=>{
+    return res.render("Home.ejs");
+})
 
 app.use("/api/auth", authRoutes);
 
