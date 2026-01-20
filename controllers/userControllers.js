@@ -1,6 +1,7 @@
 
 const con = require("../config/database");
 const sendOtpMail = require("../utils/OTP");
+const crypto = require("crypto");
 
 
 exports.sendOTP = async (req, res) => {
