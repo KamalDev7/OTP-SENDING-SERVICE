@@ -192,132 +192,130 @@ exports.subscription_verify_order = async (req, res) => {
 }
 
 
-
-
 exports.invoice = async (req, res) => {
-  const doc = new PDFDocument({ margin: 30, size: "A4" });
+    const doc = new PDFDocument({ margin: 30, size: "A4" });
 
-  res.setHeader("Content-Type", "application/pdf");
-  res.setHeader("Content-Disposition", "attachment; filename=tax-invoice.pdf");
-  doc.pipe(res);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=tax-invoice.pdf");
+    doc.pipe(res);
 
-  /* ---------------- HEADER ---------------- */
-  const logo = path.join(__dirname, "./logo.png");
-  if (fs.existsSync(logo)) {
-    doc.image(logo, 40, 30, { width: 80 });
-  }
+    /* ---------------- HEADER ---------------- */
+    const logo = path.join(__dirname, "logo.png");
+    if (fs.existsSync(logo)) {
+        doc.image(logo, 40, 30, { width: 80 });
+    }
 
-  doc.fontSize(11).text(
-    `SeaNeB Technologies Pvt Ltd
-Anand Gujarat 388315
-India
-GSTIN 24ABACS7760H1Z9
-rohan@seaneb.com
-www.seaneb.org`,
-    140,
-    35
-  );
+    doc.fontSize(11).text(
+        `SeaNeB Technologies Pvt Ltd
+        Anand Gujarat 388315
+        India
+        GSTIN 24ABACS7760H1Z9
+        rohan@seaneb.com
+        www.seaneb.org`,
+        140,
+        35
+    );
 
-  doc.fontSize(20).text("TAX INVOICE", 420, 40);
+    doc.fontSize(20).text("TAX INVOICE", 420, 40);
 
-  /* ---------------- INVOICE INFO BOX ---------------- */
-  doc.rect(30, 130, 535, 70).stroke();
+    /* ---------------- INVOICE INFO BOX ---------------- */
+    doc.rect(30, 130, 535, 70).stroke();
 
-  doc.fontSize(10)
-    .text("Invoice # : INV-000060", 40, 140)
-    .text("Invoice Date : 27/06/2025", 40, 155)
-    .text("Terms : Due on Receipt", 40, 170)
-    .text("Due Date : 27/06/2025", 40, 185);
+    doc.fontSize(10)
+        .text("Invoice # : INV-000060", 40, 140)
+        .text("Invoice Date : 27/06/2025", 40, 155)
+        .text("Terms : Due on Receipt", 40, 170)
+        .text("Due Date : 27/06/2025", 40, 185);
 
-  doc.text("Place Of Supply : Gujarat (24)", 350, 140);
+    doc.text("Place Of Supply : Gujarat (24)", 350, 140);
 
-  /* ---------------- BILL TO ---------------- */
-  doc.rect(30, 210, 535, 40).stroke();
-  doc.fontSize(10).text(
-    "Bill To\nRohan Patel , SeaNeB Technologies pvt Ltd",
-    40,
-    220
-  );
+    /* ---------------- BILL TO ---------------- */
+    doc.rect(30, 210, 535, 40).stroke();
+    doc.fontSize(10).text(
+        "Bill To\nRohan Patel , SeaNeB Technologies pvt Ltd",
+        40,
+        220
+    );
 
-  /* ---------------- TABLE HEADER ---------------- */
-  let tableTop = 270;
+    /* ---------------- TABLE HEADER ---------------- */
+    let tableTop = 270;
 
-  const col = {
-    sn: 30,
-    desc: 55,
-    qty: 250,
-    rate: 290,
-    cgstP: 335,
-    cgstA: 375,
-    sgstP: 420,
-    sgstA: 460,
-    amt: 505
-  };
+    const col = {
+        sn: 30,
+        desc: 55,
+        qty: 250,
+        rate: 290,
+        cgstP: 335,
+        cgstA: 375,
+        sgstP: 420,
+        sgstA: 460,
+        amt: 505
+    };
 
-  doc.fontSize(9);
-  doc.text("#", col.sn, tableTop);
-  doc.text("Item & Description", col.desc, tableTop);
-  doc.text("Qty", col.qty, tableTop);
-  doc.text("Rate", col.rate, tableTop);
-  doc.text("CGST %", col.cgstP, tableTop);
-  doc.text("Amt", col.cgstA, tableTop);
-  doc.text("SGST %", col.sgstP, tableTop);
-  doc.text("Amt", col.sgstA, tableTop);
-  doc.text("Amount", col.amt, tableTop);
+    doc.fontSize(9);
+    doc.text("#", col.sn, tableTop);
+    doc.text("Item & Description", col.desc, tableTop);
+    doc.text("Qty", col.qty, tableTop);
+    doc.text("Rate", col.rate, tableTop);
+    doc.text("CGST %", col.cgstP, tableTop);
+    doc.text("Amt", col.cgstA, tableTop);
+    doc.text("SGST %", col.sgstP, tableTop);
+    doc.text("Amt", col.sgstA, tableTop);
+    doc.text("Amount", col.amt, tableTop);
 
-  doc.moveTo(30, tableTop + 15).lineTo(565, tableTop + 15).stroke();
+    doc.moveTo(30, tableTop + 15).lineTo(565, tableTop + 15).stroke();
 
-  /* ---------------- TABLE ROW ---------------- */
-  const qty = 1;
-  const rate = 10;
-  const subtotal = qty * rate;
-  const cgst = +(subtotal * 0.09).toFixed(2);
-  const sgst = +(subtotal * 0.09).toFixed(2);
-  const total = +(subtotal + cgst + sgst).toFixed(2);
+    /* ---------------- TABLE ROW ---------------- */
+    const qty = 1;
+    const rate = 10;
+    const subtotal = qty * rate;
+    const cgst = +(subtotal * 0.09).toFixed(2);
+    const sgst = +(subtotal * 0.09).toFixed(2);
+    const total = +(subtotal + cgst + sgst).toFixed(2);
 
-  doc.fontSize(9)
-    .text("1", col.sn, tableTop + 25)
-    .text(
-      "Promotion Drive\nA comprehensive marketing package to increase brand visibility and customer engagement through targeted campaigns",
-      col.desc,
-      tableTop + 25,
-      { width: 180 }
-    )
-    .text("1.00", col.qty, tableTop + 25)
-    .text("10.00", col.rate, tableTop + 25)
-    .text("9%", col.cgstP, tableTop + 25)
-    .text("0.90", col.cgstA, tableTop + 25)
-    .text("9%", col.sgstP, tableTop + 25)
-    .text("0.90", col.sgstA, tableTop + 25)
-    .text("10.00", col.amt, tableTop + 25);
+    doc.fontSize(9)
+        .text("1", col.sn, tableTop + 25)
+        .text(
+            "Promotion Drive\nA comprehensive marketing package to increase brand visibility and customer engagement through targeted campaigns",
+            col.desc,
+            tableTop + 25,
+            { width: 180 }
+        )
+        .text("1.00", col.qty, tableTop + 25)
+        .text("10.00", col.rate, tableTop + 25)
+        .text("9%", col.cgstP, tableTop + 25)
+        .text("0.90", col.cgstA, tableTop + 25)
+        .text("9%", col.sgstP, tableTop + 25)
+        .text("0.90", col.sgstA, tableTop + 25)
+        .text("10.00", col.amt, tableTop + 25);
 
-  /* ---------------- TOTAL BOX ---------------- */
-  const summaryY = 430;
+    /* ---------------- TOTAL BOX ---------------- */
+    const summaryY = 430;
 
-  doc.rect(360, summaryY, 205, 130).stroke();
+    doc.rect(360, summaryY, 205, 130).stroke();
 
-  doc.fontSize(10)
-    .text("Sub Total", 370, summaryY + 10)
-    .text("10.00", 520, summaryY + 10, { align: "right" })
-    .text("CGST9 (9%)", 370, summaryY + 30)
-    .text("0.90", 520, summaryY + 30, { align: "right" })
-    .text("SGST9 (9%)", 370, summaryY + 50)
-    .text("0.90", 520, summaryY + 50, { align: "right" })
-    .text("Total", 370, summaryY + 75)
-    .text("₹11.80", 520, summaryY + 75, { align: "right" })
-    .text("Payment Made (-)", 370, summaryY + 95)
-    .text("11.80", 520, summaryY + 95, { align: "right" })
-    .text("Balance Due", 370, summaryY + 115)
-    .text("₹0.00", 520, summaryY + 115, { align: "right" });
+    doc.fontSize(10)
+        .text("Sub Total", 370, summaryY + 10)
+        .text("10.00", 520, summaryY + 10, { align: "right" })
+        .text("CGST9 (9%)", 370, summaryY + 30)
+        .text("0.90", 520, summaryY + 30, { align: "right" })
+        .text("SGST9 (9%)", 370, summaryY + 50)
+        .text("0.90", 520, summaryY + 50, { align: "right" })
+        .text("Total", 370, summaryY + 75)
+        .text("₹11.80", 520, summaryY + 75, { align: "right" })
+        .text("Payment Made (-)", 370, summaryY + 95)
+        .text("11.80", 520, summaryY + 95, { align: "right" })
+        .text("Balance Due", 370, summaryY + 115)
+        .text("₹0.00", 520, summaryY + 115, { align: "right" });
 
-  /* ---------------- FOOTER ---------------- */
-  doc.fontSize(9)
-    .text("Total In Words", 40, 450)
-    .text("Indian Rupee Eleven and Eighty Paise Only", 40, 465)
-    .text("Notes", 40, 495)
-    .text("Thanks for your business.", 40, 510);
+    /* ---------------- FOOTER ---------------- */
+    doc.fontSize(9)
+        .text("Total In Words", 40, 450)
+        .text("Indian Rupee Eleven and Eighty Paise Only", 40, 465)
+        .text("Notes", 40, 495)
+        .text("Thanks for your business.", 40, 510);
 
-  doc.text("Authorized Signature", 420, 560);
+    doc.text("Authorized Signature", 420, 560);
 
-  doc.end();
+    doc.end();
 };
