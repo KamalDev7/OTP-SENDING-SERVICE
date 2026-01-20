@@ -190,106 +190,135 @@ exports.subscription_verify_order = async (req, res) => {
     }
 }
 
+
+const PDFDocument = require("pdfkit");
+const fs = require("fs");
+const path = require("path");
+
 exports.invoice = async (req, res) => {
-    try {
-        const { orderId } = req.params;
+  const doc = new PDFDocument({ margin: 30, size: "A4" });
 
-        // Get order details from Cashfree
-        const response = await axios.get(
-            `https://sandbox.cashfree.com/pg/orders/${orderId}`,
-            {
-                headers: {
-                    "x-api-version": "2023-08-01",
-                    "x-client-id": process.env.CLIENT_ID,
-                    "x-client-secret": process.env.CLIENT_SECRET
-                }
-            }
-        );
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", "attachment; filename=tax-invoice.pdf");
+  doc.pipe(res);
 
-        const order = response.data;
+  /* ---------------- HEADER ---------------- */
+  const logo = path.join(__dirname, "logo.png");
+  if (fs.existsSync(logo)) {
+    doc.image(logo, 40, 30, { width: 80 });
+  }
 
-        if (order.order_status !== "PAID") {
-            return res.status(400).json({ message: "Invoice only for PAID orders" });
-        }
+  doc.fontSize(11).text(
+    `SeaNeB Technologies Pvt Ltd
+Anand Gujarat 388315
+India
+GSTIN 24ABACS7760H1Z9
+rohan@seaneb.com
+www.seaneb.org`,
+    140,
+    35
+  );
 
-        const doc = new PDFDocument({ margin: 40 });
+  doc.fontSize(20).text("TAX INVOICE", 420, 40);
 
-        res.setHeader("Content-Type", "application/pdf");
-        res.setHeader("Content-Disposition", `attachment; filename=invoice-${orderId}.pdf`);
+  /* ---------------- INVOICE INFO BOX ---------------- */
+  doc.rect(30, 130, 535, 70).stroke();
 
-        doc.pipe(res);
+  doc.fontSize(10)
+    .text("Invoice # : INV-000060", 40, 140)
+    .text("Invoice Date : 27/06/2025", 40, 155)
+    .text("Terms : Due on Receipt", 40, 170)
+    .text("Due Date : 27/06/2025", 40, 185);
 
-        // Logo
-        const logoPath = path.join(__dirname, "logo.jpeg");
+  doc.text("Place Of Supply : Gujarat (24)", 350, 140);
 
-        if (fs.existsSync(logoPath)) {
-            doc.image(logoPath, 500, 20, { width: 70 });
-        }
+  /* ---------------- BILL TO ---------------- */
+  doc.rect(30, 210, 535, 40).stroke();
+  doc.fontSize(10).text(
+    "Bill To\nRohan Patel , SeaNeB Technologies pvt Ltd",
+    40,
+    220
+  );
 
-        doc.fontSize(20).text("SeaNeB Autos ", 40, 20);
-        doc.fontSize(10)
-            .text("Anand,Gujrat 388315", 40, 45)
-            .text("Phone: 9999999999", 40, 60)
-            .text("Email: hello@seanebautos.com", 40, 75);
+  /* ---------------- TABLE HEADER ---------------- */
+  let tableTop = 270;
 
-        doc.fontSize(10)
-            .text(`Invoice #: ${order.order_id}`, 350, 45)
-            .text(`Invoice Date: ${new Date().toLocaleDateString()}`, 350, 60)
-            .text(`Payment Status: ${order.order_status}`, 350, 75);
+  const col = {
+    sn: 30,
+    desc: 55,
+    qty: 250,
+    rate: 290,
+    cgstP: 335,
+    cgstA: 375,
+    sgstP: 420,
+    sgstA: 460,
+    amt: 505
+  };
 
-        doc.moveDown(2);
+  doc.fontSize(9);
+  doc.text("#", col.sn, tableTop);
+  doc.text("Item & Description", col.desc, tableTop);
+  doc.text("Qty", col.qty, tableTop);
+  doc.text("Rate", col.rate, tableTop);
+  doc.text("CGST %", col.cgstP, tableTop);
+  doc.text("Amt", col.cgstA, tableTop);
+  doc.text("SGST %", col.sgstP, tableTop);
+  doc.text("Amt", col.sgstA, tableTop);
+  doc.text("Amount", col.amt, tableTop);
 
-        // Bill 
-        doc.fontSize(12).text("Bill To:", 40, 120);
-        doc.fontSize(10)
-            .text(order.customer_details.customer_email, 40, 140)
-            .text(order.customer_details.customer_phone, 40, 155);
+  doc.moveTo(30, tableTop + 15).lineTo(565, tableTop + 15).stroke();
 
-        doc.moveTo(40, 190).lineTo(550, 190).stroke();
+  /* ---------------- TABLE ROW ---------------- */
+  const qty = 1;
+  const rate = 10;
+  const subtotal = qty * rate;
+  const cgst = +(subtotal * 0.09).toFixed(2);
+  const sgst = +(subtotal * 0.09).toFixed(2);
+  const total = +(subtotal + cgst + sgst).toFixed(2);
 
-        doc.fontSize(10)
-            .text("QTY", 40, 200)
-            .text("DESCRIPTION", 80, 200)
-            .text("UNIT PRICE", 350, 200)
-            .text("AMOUNT (INR) ", 450, 200);
+  doc.fontSize(9)
+    .text("1", col.sn, tableTop + 25)
+    .text(
+      "Promotion Drive\nA comprehensive marketing package to increase brand visibility and customer engagement through targeted campaigns",
+      col.desc,
+      tableTop + 25,
+      { width: 180 }
+    )
+    .text("1.00", col.qty, tableTop + 25)
+    .text("10.00", col.rate, tableTop + 25)
+    .text("9%", col.cgstP, tableTop + 25)
+    .text("0.90", col.cgstA, tableTop + 25)
+    .text("9%", col.sgstP, tableTop + 25)
+    .text("0.90", col.sgstA, tableTop + 25)
+    .text("10.00", col.amt, tableTop + 25);
 
-        doc.moveTo(40, 215).lineTo(550, 215).stroke();
+  /* ---------------- TOTAL BOX ---------------- */
+  const summaryY = 430;
 
+  doc.rect(360, summaryY, 205, 130).stroke();
 
-        let unit = 5;
-        let amount = order.order_amount * unit;
+  doc.fontSize(10)
+    .text("Sub Total", 370, summaryY + 10)
+    .text("10.00", 520, summaryY + 10, { align: "right" })
+    .text("CGST9 (9%)", 370, summaryY + 30)
+    .text("0.90", 520, summaryY + 30, { align: "right" })
+    .text("SGST9 (9%)", 370, summaryY + 50)
+    .text("0.90", 520, summaryY + 50, { align: "right" })
+    .text("Total", 370, summaryY + 75)
+    .text("₹11.80", 520, summaryY + 75, { align: "right" })
+    .text("Payment Made (-)", 370, summaryY + 95)
+    .text("11.80", 520, summaryY + 95, { align: "right" })
+    .text("Balance Due", 370, summaryY + 115)
+    .text("₹0.00", 520, summaryY + 115, { align: "right" });
 
-        doc.fontSize(10)
-            .text("1", 40, 230)
-            .text("Car Listing Subscription", 80, 230)
-            .text("" + order.order_amount, 350, 230)
-            .text("" + amount, 450, 230);
+  /* ---------------- FOOTER ---------------- */
+  doc.fontSize(9)
+    .text("Total In Words", 40, 450)
+    .text("Indian Rupee Eleven and Eighty Paise Only", 40, 465)
+    .text("Notes", 40, 495)
+    .text("Thanks for your business.", 40, 510);
 
-        doc.moveTo(40, 260).lineTo(550, 260).stroke();
+  doc.text("Authorized Signature", 420, 560);
 
-        // 🔹 Totals
-        doc.fontSize(10)
-            .text("Subtotal:", 350, 280)
-            .text("" + amount, 450, 280);
-
-        const tax = amount * 0.18;
-
-        doc.fontSize(10)
-            .text("Tax (18%):", 350, 295)
-            .text(`${tax}`, 450, 295);
-
-        const total = amount + tax;
-        doc.fontSize(12).text("Total:", 350, 320);
-        doc.fontSize(12).text("" + total, 450, 320);
-
-        doc.moveDown(4);
-
-        doc.fontSize(12).text("Thank you for your payment ", 40, 380);
-
-        doc.end();
-
-    } catch (err) {
-        console.error("Invoice Error:", err.response?.data || err.message);
-        res.status(500).json({ message: "Invoice generation failed" });
-    }
-}
+  doc.end();
+};
