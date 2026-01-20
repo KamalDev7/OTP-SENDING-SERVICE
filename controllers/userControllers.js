@@ -1,3 +1,6 @@
+const PDFDocument = require("pdfkit");
+const path = require("path");
+const fs = require("fs");
 
 const con = require("../config/database");
 const sendOtpMail = require("../utils/OTP");
@@ -184,5 +187,109 @@ exports.subscription_verify_order = async (req, res) => {
     } catch (err) {
         console.error("Verify Error:", err.response?.data || err.message);
         res.redirect(`${process.env.FRONTEND_URL}?status=FAILED`);
+    }
+}
+
+exports.invoice = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+
+        // Get order details from Cashfree
+        const response = await axios.get(
+            `https://sandbox.cashfree.com/pg/orders/${orderId}`,
+            {
+                headers: {
+                    "x-api-version": "2023-08-01",
+                    "x-client-id": process.env.CLIENT_ID,
+                    "x-client-secret": process.env.CLIENT_SECRET
+                }
+            }
+        );
+
+        const order = response.data;
+
+        if (order.order_status !== "PAID") {
+            return res.status(400).json({ message: "Invoice only for PAID orders" });
+        }
+
+        const doc = new PDFDocument({ margin: 40 });
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", `attachment; filename=invoice-${orderId}.pdf`);
+
+        doc.pipe(res);
+
+        // Logo
+        const logoPath = path.join(__dirname, "logo.jpeg");
+
+        if (fs.existsSync(logoPath)) {
+            doc.image(logoPath, 500, 20, { width: 70 });
+        }
+
+        doc.fontSize(20).text("SeaNeB Autos ", 40, 20);
+        doc.fontSize(10)
+            .text("Anand,Gujrat 388315", 40, 45)
+            .text("Phone: 9999999999", 40, 60)
+            .text("Email: hello@seanebautos.com", 40, 75);
+
+        doc.fontSize(10)
+            .text(`Invoice #: ${order.order_id}`, 350, 45)
+            .text(`Invoice Date: ${new Date().toLocaleDateString()}`, 350, 60)
+            .text(`Payment Status: ${order.order_status}`, 350, 75);
+
+        doc.moveDown(2);
+
+        // Bill 
+        doc.fontSize(12).text("Bill To:", 40, 120);
+        doc.fontSize(10)
+            .text(order.customer_details.customer_email, 40, 140)
+            .text(order.customer_details.customer_phone, 40, 155);
+
+        doc.moveTo(40, 190).lineTo(550, 190).stroke();
+
+        doc.fontSize(10)
+            .text("QTY", 40, 200)
+            .text("DESCRIPTION", 80, 200)
+            .text("UNIT PRICE", 350, 200)
+            .text("AMOUNT (INR) ", 450, 200);
+
+        doc.moveTo(40, 215).lineTo(550, 215).stroke();
+
+
+        let unit = 5;
+        let amount = order.order_amount * unit;
+
+        doc.fontSize(10)
+            .text("1", 40, 230)
+            .text("Car Listing Subscription", 80, 230)
+            .text("" + order.order_amount, 350, 230)
+            .text("" + amount, 450, 230);
+
+        doc.moveTo(40, 260).lineTo(550, 260).stroke();
+
+        // 🔹 Totals
+        doc.fontSize(10)
+            .text("Subtotal:", 350, 280)
+            .text("" + amount, 450, 280);
+
+        const tax = amount * 0.18;
+
+        doc.fontSize(10)
+            .text("Tax (18%):", 350, 295)
+            .text(`${tax}`, 450, 295);
+
+        const total = amount + tax;
+        doc.fontSize(12).text("Total:", 350, 320);
+        doc.fontSize(12).text("" + total, 450, 320);
+
+        doc.moveDown(4);
+
+        doc.fontSize(12).text("Thank you for your payment ", 40, 380);
+
+        doc.end();
+
+    } catch (err) {
+        console.error("Invoice Error:", err.response?.data || err.message);
+        res.status(500).json({ message: "Invoice generation failed" });
     }
 }
