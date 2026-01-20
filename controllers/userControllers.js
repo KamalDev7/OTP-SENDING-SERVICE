@@ -202,7 +202,7 @@ exports.invoice = async (req, res) => {
   doc.pipe(res);
 
   /* ---------------- HEADER ---------------- */
-  const logo = path.join(__dirname, "logo.png");
+  const logo = path.join(__dirname, "./logo.png");
   if (fs.existsSync(logo)) {
     doc.image(logo, 40, 30, { width: 80 });
   }
