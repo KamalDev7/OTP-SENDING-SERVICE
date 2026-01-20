@@ -111,6 +111,9 @@ exports.createUser = async (req, res) => {
 
 
 exports.subscription_create_order = async (req, res) => {
+
+    console.log("* * * Subscription-create-order initialized * * *");
+
     try {
         // const { amount, email, phone } = req.body;
 
