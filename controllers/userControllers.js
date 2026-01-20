@@ -119,7 +119,7 @@ exports.subscription_create_order = async (req, res) => {
 
         // const amount = "150";
         // const email = "kamal@gmail.com";
-        // const phone = "9313400412"
+        // const phone = "9334441122"
 
         const requestBody = {
             order_amount: amount,
@@ -155,5 +155,34 @@ exports.subscription_create_order = async (req, res) => {
     } catch (err) {
         console.error("Cashfree API Error:", err.response?.data || err.message);
         res.status(500).json({ error: "Order creation failed" });
+    }
+}
+
+exports.subscription_verify_order = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+
+        const response = await axios.get(
+            `https://sandbox.cashfree.com/pg/orders/${orderId}`,
+            {
+                headers: {
+                    "x-api-version": "2023-08-01",
+                    "x-client-id": process.env.CLIENT_ID,
+                    "x-client-secret": process.env.CLIENT_SECRET
+                }
+            }
+        );
+
+        const paymentStatus = response.data.payments?.[0]?.payment_status;
+        const orderStatus = response.data.order_status;
+
+        console.log("Order Verified:", orderStatus, paymentStatus);
+
+        // Redirect back to frontend with status
+        //res.redirect(`${process.env.FRONTEND_URL}?orderId=${orderId}&status=${orderStatus}`);
+
+    } catch (err) {
+        console.error("Verify Error:", err.response?.data || err.message);
+        res.redirect(`${process.env.FRONTEND_URL}?status=FAILED`);
     }
 }
