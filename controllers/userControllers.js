@@ -2,6 +2,7 @@ const PDFDocument = require("pdfkit");
 const path = require("path");
 const fs = require("fs");
 
+
 const con = require("../config/database");
 const sendOtpMail = require("../utils/OTP");
 const crypto = require("crypto");
@@ -191,9 +192,7 @@ exports.subscription_verify_order = async (req, res) => {
 }
 
 
-const PDFDocument = require("pdfkit");
-const fs = require("fs");
-const path = require("path");
+
 
 exports.invoice = async (req, res) => {
   const doc = new PDFDocument({ margin: 30, size: "A4" });
