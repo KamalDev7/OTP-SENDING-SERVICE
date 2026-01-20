@@ -117,7 +117,7 @@ exports.subscription_create_order = async (req, res) => {
     try {
         // const { amount, email, phone } = req.body;
 
-        const amount = "100";
+        const amount = "150";
         const email = "kamal@gmail.com";
         const phone = "9313400412"
 
