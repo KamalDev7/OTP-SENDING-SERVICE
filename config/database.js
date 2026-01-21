@@ -1,55 +1,33 @@
-// const { Client } = require("pg");
-
-// const con = new Client(
-//     {
-//         host: process.env.HOST_NAME,
-//         user: process.env.DB_USER,
-//         port: process.env.DB_PORT,
-//         password: process.env.DB_PASSWORD,
-//         database: process.env.DB_NAME
-//     })
-
-// // const con = new Client({
-// //     connectionString: process.env.DATABASE_URL,
-// //     ssl: { rejectUnauthorized: false }
-// // });
 
 
-// con.connect().then(() => {
-//     console.log("DB Connected !");
+// const { Pool } = require("pg");
+
+// const con = new Pool({
+//   connectionString: "postgresql://postgres.lpkqtxymwbiukzdfsrsi:##root123##@aws-1-ap-south-1.pooler.supabase.com:6543/postgres",
+//   ssl: { rejectUnauthorized: false }
 // });
 
-
-// module.exports = con;
-
-
-
-// const { Client } = require("pg");
-
-// const con = new Client({
-//     connectionString: process.env.DATABASE_URL,
-//     ssl: { rejectUnauthorized: false }
+// con.on("connect", () => {
+//   console.log("Supabase PostgreSQL connected");
 // });
 
-// con.connect()
-//     .then(() => console.log("DB Connected !"))
-//     .catch(err => {
-//         console.error("DB Connection Failed:", err.message);
-//         process.exit(1);
-//     });
-
 // module.exports = con;
-
 
 
 const { Pool } = require("pg");
 
 const con = new Pool({
-  connectionString: process.env.DATABASE_URL
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false } // REQUIRED on Render
 });
 
 con.on("connect", () => {
-  console.log("Neon PostgreSQL connected");
+  console.log("Supabase PostgreSQL connected");
+});
+
+con.on("error", (err) => {
+  console.error(" DB error:", err);
+  process.exit(1);
 });
 
 module.exports = con;
