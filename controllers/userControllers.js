@@ -94,10 +94,22 @@ exports.verifyOtp = async (req, res) => {
     }
 };
 
-exports.getProfiles = async (req, res) => {
-    res.json({
-        message: "User profile"
-    });
+exports.getAllUsers = async (req, res) => {
+    try {
+        const response = await con.query(
+            "SELECT * FROM users1"
+        );
+
+        if (response.rowCount > 0) {
+            res.status(200).json({
+                users: response.rows
+            });
+        }
+        console.log(`All user got !`);
+
+    } catch (err) {
+        console.log(err);
+    }
 }
 
 
