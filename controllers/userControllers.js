@@ -79,6 +79,8 @@ exports.verifyOtp = async (req, res) => {
                 status: user.rows[0].status,
                 userExist: true
             });
+
+
         } else {
             res.status(200).json({
                 message: "OTP verified !",
@@ -124,6 +126,26 @@ exports.createUser = async (req, res) => {
     }
 }
 
+exports.getUserStatus = async (req, res) => {
+    try {
+        const { email } = req.params;
+
+        const response = await con.query(
+            "SELECT status FROM users1 WHERE email=$1",
+            [email]
+        );
+
+        if (response.rowCount > 0) {
+            res.status(200).json({
+                status: response.rows[0].status,
+            });
+        }
+        console.log(`Uer ststus:: ${response.rows[0].status}`);
+
+    } catch (err) {
+        console.log(err);
+    }
+}
 
 exports.subscription_create_order = async (req, res) => {
 
