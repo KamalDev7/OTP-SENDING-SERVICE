@@ -18,7 +18,7 @@ exports.sendOTP = async (req, res) => {
         }
 
         const otp = Math.floor(1000 + Math.random() * 9000).toString();
-        console.log("OTP Sent!: ", otp);
+        console.log("OTP generated: ", otp);
         const expiry = new Date(Date.now() + 5 * 60000);
 
         await con.query("DELETE FROM otps WHERE email=$1", [email]);
@@ -32,7 +32,7 @@ exports.sendOTP = async (req, res) => {
         console.log("------------------------Send OTP invoked with mail and OTP");
         console.log(`email:${email}`);
 
-        res.json({ message: "OTP sent" });
+        res.json({ message: "OTP sent !" });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Server error" });

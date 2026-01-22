@@ -1,6 +1,6 @@
 
 
-// const { Pool } = require("pg");
+
 
 // const con = new Pool({
 //   connectionString: "postgresql://postgres.lpkqtxymwbiukzdfsrsi:##root123##@aws-1-ap-south-1.pooler.supabase.com:6543/postgres",

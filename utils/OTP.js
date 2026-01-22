@@ -92,7 +92,6 @@ async function sendOtp(email, otp) {
     to: [{ email }],
     subject: "SeaNeB Autos OTP Verification",
     htmlContent: `
-< !DOCTYPE html>
     <html>
       <head>
         <meta charset="UTF-8" />
