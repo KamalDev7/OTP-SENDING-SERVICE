@@ -59,8 +59,14 @@ exports.verifyOtp = async (req, res) => {
 
         await con.query("DELETE FROM otps WHERE email=$1", [email]);
 
+
+        // const user = await con.query(
+        //     "SELECT id, first_name FROM users WHERE email=$1",
+        //     [email]
+        // );
+
         const user = await con.query(
-            "SELECT id, first_name FROM users WHERE email=$1",
+            "SELECT user_id, full_name,role,status FROM users1 WHERE email=$1",
             [email]
         );
 
