@@ -115,7 +115,7 @@ async function sendOtp(email, otp) {
                 <!-- Title -->
                 <tr>
                   <td style="font-size:22px;font-weight:bold;padding-bottom:10px;">
-                    <span style="color:#000;">SeaNeB Autos</span>
+                    <span style="color:#000;">SeaNeB Autos</span><br>
                     <span style="color:#2e7d32;"> OTP Verification</span>
                   </td>
                 </tr>

@@ -72,14 +72,18 @@ exports.verifyOtp = async (req, res) => {
 
         if (user.rowCount > 0) {
             res.status(200).json({
-                status: "EXISTING_USER",
-                user_id: user.rows[0].id,
-                firstName: user.rows[0].first_name,
+                user_status: "EXISTING_USER",
+                user_id: user.rows[0].user_id,
+                full_name: user.rows[0].full_name,
+                role:user.rows[0].role,
+                status:user.rows[0].status,
+                userExist:true
             });
         } else {
             res.status(200).json({
                 message: "OTP verified !",
-                status: "NEW_USER"
+                user_status: "NEW_USER",
+                userExist:false
             });
         }
     } catch (err) {
