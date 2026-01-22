@@ -159,6 +159,36 @@ exports.getUserStatus = async (req, res) => {
     }
 }
 
+exports.changeUserRole = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const response =
+            await con.query(
+                "update users1 set role='dealer' where email=$1",
+                [email]
+            );
+
+        if (response.rowCount === 0) {
+            res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        res.status(200).json({
+            message: "User role updated successfully",
+            email
+        });
+
+        console.log(`User role changed to Dealer :: ${email}`);
+
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+
+
 exports.subscription_create_order = async (req, res) => {
 
     console.log("* * * Subscription-create-order initialized * * *");
