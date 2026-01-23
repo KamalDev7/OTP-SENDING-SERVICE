@@ -1,9 +1,9 @@
 const con = require("../config/database");
 
 exports.getAllUsers = async (req, res) => {
-  try {
-    const result = await con.query(
-      `
+    try {
+        const result = await con.query(
+            `
       SELECT
         u.user_id,
         u.full_name,
@@ -18,79 +18,119 @@ exports.getAllUsers = async (req, res) => {
         ON r.role_id = u.role_id
       ORDER BY u.created_at DESC
       `
-    );
+        );
 
-    res.status(200).json({
-      users: result.rows
-    });
+        res.status(200).json({
+            users: result.rows
+        });
 
-    console.log("All users fetched with roles");
+        console.log("All users fetched with roles");
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      message: "Server error"
-    });
-  }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            message: "Server error"
+        });
+    }
 };
 
 
 
 exports.changeUserRole = async (req, res) => {
-  try {
-    const { email, role_name } = req.body;
+    try {
+        const { email, role_name } = req.body;
 
-    if (!email || !role_name) {
-      return res.status(400).json({
-        message: "email and role_name are required"
-      });
+        if (!email || !role_name) {
+            return res.status(400).json({
+                message: "email and role_name are required"
+            });
+        }
+
+        const roleResult = await con.query(
+            "SELECT role_id FROM roles WHERE role_name = $1",
+            [role_name]
+        );
+
+        if (roleResult.rowCount === 0) {
+            return res.status(400).json({
+                message: "Invalid role"
+            });
+        }
+
+        const role_id = roleResult.rows[0].role_id;
+
+        const updateResult = await con.query(
+            "UPDATE users1 SET role_id = $1 WHERE email = $2",
+            [role_id, email]
+        );
+
+        if (updateResult.rowCount === 0) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        console.log(`User role changed to '${role_name}', Email: ${email}`);
+
+        res.status(200).json({
+            message: "User role updated successfully",
+            email,
+            role: role_name
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            message: "Server error"
+        });
     }
-
-    const roleResult = await con.query(
-      "SELECT role_id FROM roles WHERE role_name = $1",
-      [role_name]
-    );
-
-    if (roleResult.rowCount === 0) {
-      return res.status(400).json({
-        message: "Invalid role"
-      });
-    }
-
-    const role_id = roleResult.rows[0].role_id;
-
-    const updateResult = await con.query(
-      "UPDATE users1 SET role_id = $1 WHERE email = $2",
-      [role_id, email]
-    );
-
-    if (updateResult.rowCount === 0) {
-      return res.status(404).json({
-        message: "User not found"
-      });
-    }
-
-    console.log(`User role changed to '${role_name}', Email: ${email}`);
-
-    res.status(200).json({
-      message: "User role updated successfully",
-      email,
-      role: role_name
-    });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      message: "Server error"
-    });
-  }
 };
 
+exports.getUserPermissions = async (req, res) => {
+    try {
+        const { role_name } = req.body;
 
+        if (!role_name) {
+            return res.status(400).json({
+                message: "role_name is required"
+            });
+        }
 
-exports.getDealersPermissions = async (req, res) => {
+        const result = await con.query(
+            `SELECT r.role_name,rp.can_create,rp.can_update,rp.can_delete,rp.can_read,rp.can_add_staff
+            FROM roles r
+            JOIN role_permissions rp
+                ON rp.role_id = r.role_id
+            WHERE r.role_name = $1
+            `,
+            [role_name]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({
+                message: "Role or permissions not found"
+            });
+        }
+
+        res.status(200).json({
+            role: role_name,
+            permissions: result.rows[0],
+            message: "Role permissions fetched successfully"
+        });
+
+        console.log(`Fetched permissions for role '${role_name}'`);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            message: "Server error"
+        });
+    }
+};
+
+exports.grantPermissionToUser = async (req, res) => {
   try {
-    const { role_name } = req.body;
+    const { role_name,can_create = false,can_update = false,can_delete = false,can_read = false,can_add_staff = false} = req.body;
 
     if (!role_name) {
       return res.status(400).json({
@@ -98,36 +138,51 @@ exports.getDealersPermissions = async (req, res) => {
       });
     }
 
-    const result = await con.query(
-      `
-      SELECT 
-        r.role_name,
-        rp.can_create,
-        rp.can_update,
-        rp.can_delete,
-        rp.can_read,
-        rp.can_add_staff
-      FROM roles r
-      JOIN role_permissions rp
-        ON rp.role_id = r.role_id
-      WHERE r.role_name = $1
-      `,
+    // role_id
+    const roleResult = await con.query(
+      "SELECT role_id FROM roles WHERE role_name = $1",
       [role_name]
     );
 
-    if (result.rowCount === 0) {
+    if (roleResult.rowCount === 0) {
       return res.status(404).json({
-        message: "Role or permissions not found"
+        message: "Role not found"
+      });
+    }
+
+    const role_id = roleResult.rows[0].role_id;
+
+    // Update permissions for that role
+    const updateResult = await con.query(
+      `
+      UPDATE role_permissions
+      SET
+        can_create = $1,can_update = $2,
+        can_delete = $3,can_read   = $4,
+        can_add_staff = $5 WHERE role_id = $6
+      `,
+      [ can_create,can_update,can_delete,can_read,can_add_staff,role_id ]
+    );
+
+    if (updateResult.rowCount === 0) {
+      return res.status(404).json({
+        message: "Permissions not found for this role"
       });
     }
 
     res.status(200).json({
+      message: "Permissions updated successfully",
       role: role_name,
-      permissions: result.rows[0],
-      message: "Role permissions fetched successfully"
+      permissions: {
+        can_create,
+        can_update,
+        can_delete,
+        can_read,
+        can_add_staff
+      }
     });
 
-    console.log(`Fetched permissions for role '${role_name}'`);
+    console.log(`Permissions updated for role '${role_name}'`);
 
   } catch (err) {
     console.error(err);
@@ -136,16 +191,3 @@ exports.getDealersPermissions = async (req, res) => {
     });
   }
 };
-
-
-exports.grantPermissionToDealer = async (req, res) => {
-
-    try {
-
-        const { role, can_read, can_add_staff, can_create, can_update, can_delete } = req.body;
-
-    } catch (err) {
-
-    }
-
-}

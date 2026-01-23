@@ -4,6 +4,7 @@ const user = require("../controllers/usersControllers");
 
 router.get("/getAllUsers",user.getAllUsers);
 router.post("/changeUserRole",user.changeUserRole);
-router.post("/getDealerPermissions",user.getDealersPermissions);
+router.post("/getUserPermissions",user.getUserPermissions);
+router.post("/grantPermissionToUser",user.grantPermissionToUser);
 
 module.exports = router;
