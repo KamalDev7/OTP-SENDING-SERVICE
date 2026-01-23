@@ -93,27 +93,78 @@ exports.verifyOtp = async (req, res) => {
 };
 
 
+// exports.createUser = async (req, res) => {
+//     try {
+//         const { full_name, email, phone, role } = req.body;
+
+//         await con.query(
+//             "INSERT INTO users1(full_name,email,phone,role) VALUES ($1,$2,$3,$4)",
+//             [full_name, email, phone, role]
+//         );
+
+//         console.log("User inserted...");
+
+//         res.status(200).json({
+//             message: "User created..."
+//         })
+
+//     }
+//     catch (err) {
+//         console.log(err);
+//         res.status(500).json({
+//             message: "Server Error !"
+//         })
+//     }
+// }
+
+
+
 exports.createUser = async (req, res) => {
-    try {
-        const { full_name, email, phone, role } = req.body;
+  try {
+    const { full_name, email, phone, role_name } = req.body;
 
-        await con.query(
-            "INSERT INTO users1(full_name,email,phone,role) VALUES ($1,$2,$3,$4)",
-
-            [full_name, email, phone, role]
-        );
-
-        console.log("User inserted...");
-
-        res.status(200).json({
-            message: "User created..."
-        })
-
+    if (!full_name || !email || !role_name) {
+      return res.status(400).json({
+        message: "full_name, email and role_name are required"
+      });
     }
-    catch (err) {
-        console.log(err);
-        res.status(500).json({
-            message: "Server Error !"
-        })
+
+    const roleResult = await con.query(
+      "SELECT role_id FROM roles WHERE role_name = $1",
+      [role_name]
+    );
+
+    if (roleResult.rowCount === 0) {
+      return res.status(400).json({
+        message: "Invalid role"
+      });
     }
-}
+
+    const role_id = roleResult.rows[0].role_id;
+
+    await con.query(
+      `INSERT INTO users1 (full_name, email, phone, role_id)
+       VALUES ($1, $2, $3, $4)`,
+      [full_name, email, phone, role_id]
+    );
+
+    console.log("User inserted successfully");
+
+    res.status(201).json({
+      message: "User created successfully"
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    if (err.code === "23505") { 
+      return res.status(409).json({
+        message: "Email already exists"
+      });
+    }
+
+    res.status(500).json({
+      message: "Server error"
+    });
+  }
+};
