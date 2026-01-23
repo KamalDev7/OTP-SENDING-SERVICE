@@ -3,6 +3,6 @@ const router = express.Router();
 const user = require("../controllers/usersControllers");
 
 router.get("/getAllUsers",user.getAllUsers);
-router.post("/changeUserRole",user.changeUserRole);
+router.post("/changeUserRoleToDealer",user.changeUserRoleToDealer);
 
 module.exports = router;
