@@ -1,22 +1,39 @@
 const con = require("../config/database");
 
 exports.getAllUsers = async (req, res) => {
-    try {
-        const response = await con.query(
-            "SELECT * FROM users1"
-        );
+  try {
+    const result = await con.query(
+      `
+      SELECT
+        u.user_id,
+        u.full_name,
+        u.email,
+        u.phone,
+        u.created_at,
+        u.approved_at,
+        u.role_id,
+        r.role_name
+      FROM users1 u
+      JOIN roles r
+        ON r.role_id = u.role_id
+      ORDER BY u.created_at DESC
+      `
+    );
 
-        if (response.rowCount > 0) {
-            res.status(200).json({
-                users: response.rows
-            });
-        }
-        console.log(`All user got !`);
+    res.status(200).json({
+      users: result.rows
+    });
 
-    } catch (err) {
-        console.log(err);
-    }
-}
+    console.log("All users fetched with roles");
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Server error"
+    });
+  }
+};
+
 
 
 exports.changeUserRole = async (req, res) => {
