@@ -65,7 +65,7 @@ exports.verifyOtp = async (req, res) => {
         // );
 
         const user = await con.query(
-            "SELECT user_id, full_name,role,status FROM users1 WHERE email=$1",
+            "SELECT user_id, full_name,role FROM users1 WHERE email=$1",
             [email]
         );
 
@@ -75,7 +75,6 @@ exports.verifyOtp = async (req, res) => {
                 user_id: user.rows[0].user_id,
                 full_name: user.rows[0].full_name,
                 role: user.rows[0].role,
-                status: user.rows[0].status,
                 userExist: true
             });
 
