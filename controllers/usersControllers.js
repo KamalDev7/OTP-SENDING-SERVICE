@@ -20,9 +20,7 @@ exports.getAllUsers = async (req, res) => {
 
 
 
-
-
-exports.changeUserRoleToDealer = async (req, res) => {
+exports.changeUserRole = async (req, res) => {
     try {
         const { email,role } = req.body;
 
