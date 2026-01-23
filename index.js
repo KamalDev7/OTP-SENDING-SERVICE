@@ -10,6 +10,7 @@ require("dotenv").config();
 
 const authRoutes = require("./routers/userAuthRoutes");
 const paymentRoutes = require("./routers/subscriptionRoutes");
+const userRoutes = require("./routers/userRoutes");
 
 // app.use(cors({
 //     origin: "http://localhost:3000",
@@ -33,6 +34,7 @@ app.get("/",(req,res)=>{
 
 app.use("/api/auth", authRoutes);
 app.use("/api/payment",paymentRoutes);
+app.use("/api/user",userRoutes);
 
 const port = process.env.PORT || 8000;
 app.listen(port, () => {
