@@ -87,3 +87,46 @@ exports.addCar = async (req, res) => {
     });
   }
 };
+
+
+
+
+exports.getAllCars = async (req, res) => {
+  try {
+    const result = await con.query(
+      `
+      SELECT
+        c.car_id,
+        c.car_name,
+        c.car_model,
+        c.price,
+        c.created_at,
+
+        b.business_name,
+        b.business_address,
+
+        u.full_name AS dealer_name,
+        u.phone AS dealer_phone
+
+      FROM cars c
+      JOIN businesses b
+        ON b.business_id = c.business_id
+      JOIN users1 u
+        ON u.user_id = c.dealer_id
+      ORDER BY c.created_at DESC
+      `
+    );
+
+    res.status(200).json({
+      cars: result.rows
+    });
+
+    console.log("All cars fetched for explore page");
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Server error"
+    });
+  }
+};
