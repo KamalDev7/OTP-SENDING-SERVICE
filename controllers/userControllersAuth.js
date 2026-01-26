@@ -86,19 +86,40 @@ exports.verifyOtp = async (req, res) => {
 
     if (userResult.rowCount > 0) {
       const user = userResult.rows[0];
+      
+      
+      const result = await con.query(
+      `
+      SELECT 
+      business_id,
+        business_name,
+        business_address
+        FROM businesses
+      WHERE email = $1
+      `,
+      [email]
+    );
+
+    // Business not registered
+    let businessRegistered;
+    if (result.rowCount === 0) {
+        businessRegistered: false
+    }
+
 
       return res.status(200).json({
         message: "OTP verified",
         user_status: "EXISTING_USER",
         userExist: true,
-
+        
         user: {
           user_id: user.user_id,
           full_name: user.full_name,
           email: user.email,
           phone: user.phone,
           role_id: user.role_id,
-          role: user.role_name
+          role: user.role_name,
+          businessRegistered
         }
       });
     }

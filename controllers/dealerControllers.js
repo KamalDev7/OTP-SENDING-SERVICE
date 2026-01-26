@@ -74,3 +74,6 @@ exports.registerBusiness = async (req, res) => {
     });
   }
 };
+
+
+

@@ -7,4 +7,5 @@ router.put("/changeUserRole",user.changeUserRole);
 router.post("/getUserPermissions",user.getUserPermissions);
 router.put("/grantPermissionToUser",user.grantPermissionToUser);
 
+
 module.exports = router;
