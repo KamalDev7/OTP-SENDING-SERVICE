@@ -31,14 +31,14 @@ exports.registerBusiness = async (req, res) => {
 
     const { user_id, role_name } = userResult.rows[0];
 
-    // 2️⃣ Allow only dealers
+    // Allow only dealers
     if (role_name !== "dealer") {
       return res.status(403).json({
         message: "Only dealers can register a business"
       });
     }
 
-    // 3️⃣ Check existing business
+    // Check existing business
     const businessCheck = await con.query(
       "SELECT business_id FROM businesses WHERE dealer_id = $1",
       [user_id]
@@ -50,7 +50,7 @@ exports.registerBusiness = async (req, res) => {
       });
     }
 
-    // 4️⃣ Insert business
+    // Insert business
     const result = await con.query(
       `
       INSERT INTO businesses (dealer_id, business_name, business_address)
