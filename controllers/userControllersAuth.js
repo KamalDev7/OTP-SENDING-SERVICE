@@ -9,33 +9,33 @@ const axios = require("axios");
 
 
 exports.sendOTP = async (req, res) => {
-    try {
-        const { email } = req.body;
+  try {
+    const { email } = req.body;
 
-        if (!/^\S+@\S+\.\S+$/.test(email)) {
-            return res.status(400).json({ message: "Invalid email" });
-        }
-
-        const otp = Math.floor(1000 + Math.random() * 9000).toString();
-        console.log("OTP generated: ", otp);
-        const expiry = new Date(Date.now() + 5 * 60000);
-
-        await con.query("DELETE FROM otps WHERE email=$1", [email]);
-        await con.query(
-            "INSERT INTO otps(email, otp, expires_at) VALUES ($1,$2,$3)",
-            [email, otp, expiry]
-        );
-
-        await sendOtpMail(email, otp);
-
-        console.log("------------------------Send OTP invoked with mail and OTP");
-        console.log(`email:${email}`);
-
-        res.json({ message: "OTP sent !" });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Server error" });
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      return res.status(400).json({ message: "Invalid email" });
     }
+
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    console.log("OTP generated: ", otp);
+    const expiry = new Date(Date.now() + 5 * 60000);
+
+    await con.query("DELETE FROM otps WHERE email=$1", [email]);
+    await con.query(
+      "INSERT INTO otps(email, otp, expires_at) VALUES ($1,$2,$3)",
+      [email, otp, expiry]
+    );
+
+    await sendOtpMail(email, otp);
+
+    console.log("------------------------Send OTP invoked with mail and OTP");
+    console.log(`email:${email}`);
+
+    res.json({ message: "OTP sent !" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 
@@ -86,32 +86,23 @@ exports.verifyOtp = async (req, res) => {
 
     if (userResult.rowCount > 0) {
       const user = userResult.rows[0];
-      
-      
-      const result = await con.query(
-      `
-      SELECT 
-      business_id,
-        business_name,
-        business_address
-        FROM businesses
-      WHERE email = $1
-      `,
-      [email]
-    );
 
-    // Business not registered
-    let businessRegistered;
-    if (result.rowCount === 0) {
-        businessRegistered: false
-    }
+      const businessResult = await con.query(
+        `
+    SELECT business_id
+    FROM businesses
+    WHERE dealer_id = $1
+    `,
+        [user.user_id]
+      );
 
+      const businessRegistered = businessResult.rowCount > 0;
 
       return res.status(200).json({
         message: "OTP verified",
         user_status: "EXISTING_USER",
         userExist: true,
-        
+
         user: {
           user_id: user.user_id,
           full_name: user.full_name,
@@ -154,7 +145,7 @@ exports.createUser = async (req, res) => {
       INSERT INTO users1 (full_name, email, phone)
       VALUES ($1, $2, $3)
       `,
-      [full_name, email, phone ]
+      [full_name, email, phone]
     );
 
     console.log("User inserted successfully");
