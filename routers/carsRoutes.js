@@ -5,7 +5,7 @@ const cars = require("../controllers/carsControllers");
 
 router.post("/addNewCar", cars.addCar);
 router.post("/getDealerCars", cars.getDealerCars);
-router.put("/updateCar", cars.updateCar);
+router.post("/updateCar", cars.updateCar);
 router.delete("/deleteCar", cars.deleteCar);
 router.get("/getAllCars",cars.getAllCars);
 
